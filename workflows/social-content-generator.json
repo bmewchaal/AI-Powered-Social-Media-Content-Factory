@@ -1,0 +1,68 @@
+{
+  "name": "social-content-generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-post",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        -16
+      ],
+      "id": "538940a0-8ca6-498d-b6b3-5e9e8fbaf167",
+      "name": "Webhook",
+      "webhookId": "5d7b3c6c-48f2-43a4-8887-40970a51655e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"YOUR_GROQ_API_KEY_HERE\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "=application/json",
+        "body": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a social media content generator. Return ONLY valid JSON. No explanations.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Topic: {{$json.body.topic}}\\nLink: {{$json.body.link}}\\nHashtags: {{$json.body.hashtags.join(', ')}}\\n\\nGenerate platform-specific content:\\n- LinkedIn: professional\\n- Instagram: casual with emojis\\n- X: short and impactful\\n- TikTok: fast, visual, trend-driven\\n- YouTube Shorts: punchy vertical video style\\n\\nReturn JSON like this:\\n{\\n  \\\"LinkedIn\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"Instagram\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"emojis\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"X\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"TikTok\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"YouTubeShorts\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"}\\n}\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        176,
+        -16
+      ],
+      "id": "876c3fa5-6f17-4dc5-a9ee-7147bd5c4ce2",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a9ee57d7-2fc1-484e-8c39-94ef3ad485e0",
+  "meta": {
+    "instanceId": "caec34b7bccba763b7f601dc6145d085cd407d431c86c201ff693c1a8fd661da"
+  },
+  "id": "D5UQ8d4g7hegyUKJ",
+  "tags": []
+}
