@@ -10,7 +10,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -32,
+        -240,
         -16
       ],
       "id": "538940a0-8ca6-498d-b6b3-5e9e8fbaf167",
@@ -23,21 +23,102 @@
         "url": "https://api.groq.com/openai/v1/chat/completions",
         "sendHeaders": true,
         "specifyHeaders": "json",
-        "jsonHeaders": "{\n  \"Authorization\": \"YOUR_GROQ_API_KEY_HERE\",\n  \"Content-Type\": \"application/json\"\n}",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer YOUR_API_KEY\",\n  \"Content-Type\": \"application/json\"\n}",
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "=application/json",
-        "body": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a social media content generator. Return ONLY valid JSON. No explanations.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Topic: {{$json.body.topic}}\\nLink: {{$json.body.link}}\\nHashtags: {{$json.body.hashtags.join(', ')}}\\n\\nGenerate platform-specific content:\\n- LinkedIn: professional\\n- Instagram: casual with emojis\\n- X: short and impactful\\n- TikTok: fast, visual, trend-driven\\n- YouTube Shorts: punchy vertical video style\\n\\nReturn JSON like this:\\n{\\n  \\\"LinkedIn\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"Instagram\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"emojis\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"X\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"TikTok\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"},\\n  \\\"YouTubeShorts\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\"}\\n}\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
+        "body": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a social media content generator. Return ONLY valid JSON. No explanations.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Topic: {{$json.body.topic}}\\nLink: {{$json.body.link}}\\nHashtags: {{Array.isArray($json.body.hashtags) ? $json.body.hashtags.join(', ') : ($json.body.hashtags || '')}}\\n\\nGenerate platform-specific content:\\n- LinkedIn: professional\\n- Instagram: casual with emojis\\n- X: short and impactful\\n- TikTok: fast, visual, trend-driven\\n- YouTube Shorts: punchy vertical video style\\n\\nAlso include a short \\\"image_prompt\\\" describing a suitable visual for each platform.\\n\\nReturn JSON like this:\\n{\\n  \\\"LinkedIn\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\", \\\"image_prompt\\\": \\\"\\\"},\\n  \\\"Instagram\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"emojis\\\": [], \\\"cta\\\": \\\"\\\", \\\"image_prompt\\\": \\\"\\\"},\\n  \\\"X\\\": {\\\"text\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\", \\\"image_prompt\\\": \\\"\\\"},\\n  \\\"TikTok\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\", \\\"image_prompt\\\": \\\"\\\"},\\n  \\\"YouTubeShorts\\\": {\\\"caption\\\": \\\"\\\", \\\"hashtags\\\": [], \\\"cta\\\": \\\"\\\", \\\"image_prompt\\\": \\\"\\\"}\\n}\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        176,
-        -16
+        352,
+        160
       ],
       "id": "876c3fa5-6f17-4dc5-a9ee-7147bd5c4ce2",
       "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "image"
+            },
+            {
+              "name": "key",
+              "value": "YOUR_IMGBB_API_KEY"
+            },
+            {
+              "name": "name",
+              "value": "={{$json.fileName}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        896,
+        -336
+      ],
+      "id": "13728d7f-c4b7-4831-8ce0-3818be998e76",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f3cbaf50-5771-44ad-ba92-5302c8b2f0c4",
+              "leftValue": "={{ $binary.image !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "7c06719f-09d1-4f76-b90a-9919bc5c74a5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// If running in \"Run Once for All Items\", n8n provides `items` array\nconst processedItems = items.map(item => {\n  const inputJson = item.json || {};\n  const inputBinary = item.binary || {};\n\n  // Check that a binary file exists\n  if (Object.keys(inputBinary).length === 0) {\n    throw new Error(\"No file uploaded in this item\");\n  }\n\n  // Get the binary key dynamically (image, file, etc.)\n  const binaryKey = Object.keys(inputBinary)[0];\n  const binaryData = inputBinary[binaryKey];\n\n  // Create filename safely\n  const topic = inputJson.body?.topic || \"image\";\n  const newFileName = topic.replace(/ /g, \"_\") + \"_\" + Date.now() + \".jpg\";\n\n  return {\n    json: {\n      ...inputJson,      // keep original JSON\n      fileName: newFileName // add new filename\n    },\n    binary: {\n      [binaryKey]: binaryData // preserve original binary\n    }\n  };\n});\n\nreturn processedItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -336
+      ],
+      "id": "5202f713-fa44-4ba6-a644-d092abd4ae4b",
+      "name": "Code in JavaScript"
     }
   ],
   "pinData": {},
@@ -47,6 +128,43 @@
         [
           {
             "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
             "type": "main",
             "index": 0
           }
@@ -59,7 +177,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "a9ee57d7-2fc1-484e-8c39-94ef3ad485e0",
+  "versionId": "434f6e96-2b8c-45d3-9b6f-71cc2e866ca8",
   "meta": {
     "instanceId": "caec34b7bccba763b7f601dc6145d085cd407d431c86c201ff693c1a8fd661da"
   },
